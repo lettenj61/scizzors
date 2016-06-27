@@ -25,8 +25,12 @@ trait Addons {
   object cd extends PathRef {
     def apply(arg: Path): Unit = {
       if (ops.exists! arg) {
-        focus() = arg
-        println(focus())
+        if (arg.isDir) {
+          focus() = arg
+          println(focus())
+        } else {
+          println(s"$arg is not a directory.")
+        }
       } else println(s"$arg does not exist.")
     }
 
