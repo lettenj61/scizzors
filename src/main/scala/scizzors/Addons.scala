@@ -10,35 +10,7 @@ import upickle.default
 
 /** Additional functions to regular Ammonite operations.
   */
-trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
-
-  /** Proxy for same functions located in Ammonite ops package object.
-    */
-  val root = ops.root
-
-  def resource(implicit resourceRoot: ops.ResourceRoot = Thread.currentThread.getContextClassLoader) = {
-    ops.ResourcePath.resource(resourceRoot)
-  }
-
-  // Delegations.
-
-  lazy val home = ops.home
-
-  lazy val tmp = ops.tmp
-
-  lazy val cwd = ops.cwd
-
-  val / = ops./
-
-  val ls = ops.ls
-  val mv = ops.mv
-  val cp = ops.cp
-  val rm = ops.rm
-  val write = ops.write
-  val read = ops.read
-
-  val % = ops.Shellout.%
-  val %% = ops.Shellout.%%
+trait Addons {
 
   /** Grants reference to the path where the application focus on.
     */
@@ -69,14 +41,6 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
     */
   implicit def wd: Path = cd.focus()
 
-  implicit def optionExtention[A](option: Option[A]) = new syntax.OptionExt(option)
-
-  implicit def iterableZipping[A, R](iterable: collection.IterableLike[A, R]) =
-    new syntax.Zipping(iterable)
-
-  implicit def seqInquiry[A](seq: collection.Seq[A]) = new syntax.QueryableSeq(seq)
-  implicit def mapInquiry[A, B](map: collection.Map[A, B]) = new syntax.QueryableMap(map)
-
   /** Experimental!
     * Run an executable located in specified path with sub process.
     */
@@ -85,10 +49,6 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
     def apply(executable: Path) = ops.%(executable.toString)
     def !(executable: Path) = apply(executable)
   }
-
-  /** Functionality to handle scalaj.Http things.
-    */
-  object http extends WebThings
 
   /** Rough helper to some platform-oriented operations.
     */
@@ -140,12 +100,15 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
   /** Unpickling functionality supports reading json files from disks.
     */
   object unpickle {
+    import upickle.json
     def apply[T : default.Reader](expr: String) = default.read(expr)
+
+    def asJs(expr: String) = json.read(expr).asInstanceOf[upickle.Js.Obj]
 
     object file {
       def apply[T : default.Reader](arg: Path) = default.read(ops.read(arg))
 
-      def asJs(arg: Path) = upickle.json.read(ops.read(arg)).asInstanceOf[upickle.Js.Obj]
+      def asJs(arg: Path) = unpickle.asJs(ops.read(arg))
     }
   }
 }
