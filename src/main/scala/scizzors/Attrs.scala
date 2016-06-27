@@ -1,4 +1,4 @@
-package scizzors.ops
+package scizzors
 
 import java.nio.file.{ Files, Paths, FileSystems, LinkOption }
 import java.nio.file.attribute._
@@ -56,6 +56,7 @@ object Attrs {
       owner: UserPrincipal,
       fileType: FileType) extends Attrs {
 
+    override def toString = s"$name,$size,$mtime,$owner,$fileType"
   }
 
   def default(path: ammonite.ops.Path) = {
@@ -77,6 +78,12 @@ object Attrs {
     }
   }
 
+  /** Make file attirbute with given permission handlers.
+    *
+    * @param  path  Target path to collect attributes.
+    * @param  perms set of permisions in POSIX file system.
+      @param  acls  ACL informations of given file in Windows platform.
+    */
   def make(path: ammonite.ops.Path)(perms: Set[PosixFilePermission],
                                     acls: Seq[AclEntry]): Attrs = {
 
