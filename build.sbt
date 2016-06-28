@@ -10,9 +10,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "ammonite-repl"  % "0.6.2" cross CrossVersion.full
 )
 
-initialCommands in (Test, console) := """
-  import ammonite.{ ops, repl }; import ops._
-  repl.Main.main(
-    Seq("-f", cwd/'src/'main/'resources/"preamble.scala" toString).toArray
-  )
+initialCommands in console := """
+  import scizzors._
+  object Preamble0 extends Addons; import Preamble0._
 """

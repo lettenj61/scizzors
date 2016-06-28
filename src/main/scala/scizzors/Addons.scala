@@ -12,25 +12,23 @@ import upickle.default
   */
 trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
 
-  /** Proxy for same functions located in Ammonite ops package object.
-    */
-  val root = ops.root
+
 
   def resource(implicit resourceRoot: ops.ResourceRoot = Thread.currentThread.getContextClassLoader) = {
     ops.ResourcePath.resource(resourceRoot)
   }
 
-  // Delegations.
+  /** Proxy for same functions located in Ammonite ops package object.
+    */
+  val root = ops.root
 
   lazy val home = ops.home
-
   lazy val tmp = ops.tmp
-
-  lazy val cwd = ops.cwd
+  val cwd = ops.cwd
 
   val / = ops./
 
-  val ls = ops.ls
+  val exists = ops.exists
   val mv = ops.mv
   val cp = ops.cp
   val rm = ops.rm
@@ -43,7 +41,7 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
   /** Grants reference to the path where the application focus on.
     */
   trait PathRef extends ops.ImplicitOp[Unit] {
-    private[scizzors] val focus: Ref[Path] = Ref(ops.Path.home)
+    private[scizzors] val focus: Ref[Path] = Ref(cwd)
 
     override def toString = focus().toString
   }
@@ -52,8 +50,8 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
     */
   object cd extends PathRef {
     def apply(arg: Path): Unit = {
-      if (ops.exists! arg) {
-        if (arg.isDir) {
+      if (exists! arg) {
+        if (arg == root || arg.isDir) {
           focus() = arg
           println(focus())
         } else {
@@ -62,14 +60,14 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
       } else println(s"$arg does not exist.")
     }
 
-    def ~ = apply(ops.Path.home)
+    def ~ = apply(home)
   }
 
   /** A default implicit path provider.
     */
   implicit def wd: Path = cd.focus()
 
-  implicit def optionExtention[A](option: Option[A]) = new syntax.OptionExt(option)
+  implicit def optionExtension[A](option: Option[A]) = new syntax.OptionExt(option)
 
   implicit def iterableZipping[A, R](iterable: collection.IterableLike[A, R]) =
     new syntax.Zipping(iterable)
