@@ -15,7 +15,7 @@ trait Addons {
   /** Grants reference to the path where the application focus on.
     */
   trait PathRef extends ops.ImplicitOp[Unit] {
-    private[scizzors] val focus: Ref[Path] = Ref(ops.Path.home)
+    private[scizzors] val focus: Ref[Path] = Ref(ops.cwd)
 
     override def toString = focus().toString
   }
