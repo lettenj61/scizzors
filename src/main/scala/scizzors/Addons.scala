@@ -10,7 +10,7 @@ import upickle.default
 
 /** Additional functions to regular Ammonite operations.
   */
-trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
+trait Addons extends ops.Extensions with ops.RelPathStuff {
 
   /** Proxy for same functions located in Ammonite ops package object.
     */
@@ -34,6 +34,8 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
   val mv = ops.mv
   val cp = ops.cp
   val rm = ops.rm
+  val exsists = ops.exists
+
   val write = ops.write
   val read = ops.read
 
@@ -43,7 +45,7 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
   /** Grants reference to the path where the application focus on.
     */
   trait PathRef extends ops.ImplicitOp[Unit] {
-    private[scizzors] val focus: Ref[Path] = Ref(ops.Path.home)
+    private[scizzors] val focus: Ref[Path] = Ref(ops.cwd)
 
     override def toString = focus().toString
   }
@@ -53,7 +55,7 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
   object cd extends PathRef {
     def apply(arg: Path): Unit = {
       if (ops.exists! arg) {
-        if (arg.isDir) {
+        if (arg == ops.Path.root || arg.isDir) {
           focus() = arg
           println(focus())
         } else {
@@ -69,10 +71,7 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
     */
   implicit def wd: Path = cd.focus()
 
-  implicit def optionExtention[A](option: Option[A]) = new syntax.OptionExt(option)
-
-  implicit def iterableZipping[A, R](iterable: collection.IterableLike[A, R]) =
-    new syntax.Zipping(iterable)
+  implicit def optionExtension[A](option: Option[A]) = new syntax.OptionExt(option)
 
   implicit def seqInquiry[A](seq: collection.Seq[A]) = new syntax.QueryableSeq(seq)
   implicit def mapInquiry[A, B](map: collection.Map[A, B]) = new syntax.QueryableMap(map)
@@ -141,6 +140,8 @@ trait Addons extends ops.Extensions with ops.RelPathStuff with Tools {
     */
   object unpickle {
     def apply[T : default.Reader](expr: String) = default.read(expr)
+
+    def asJs(arg: Path) = upickle.json.read(ops.read(arg))
 
     object file {
       def apply[T : default.Reader](arg: Path) = default.read(ops.read(arg))

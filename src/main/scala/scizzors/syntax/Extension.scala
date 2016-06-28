@@ -19,23 +19,6 @@ class OptionExt[+T](o: Option[T]) {
   def ?[T1 >: T](alternative: => Option[T1]): Option[T1] = o orElse alternative
 }
 
-class Zipping[+A, Repr](itl: IterableLike[A, Repr]) {
-
-  def |+[A1 >: A, B, That](that: GenIterable[B])(
-      implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
-    itl.zip(that)(bf)
-  }
-
-  def |++[A1 >: A, B, That](that: GenIterable[B], thisElem: A1, thatElem: B)(
-      implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
-    itl.zipAll(that, thisElem, thatElem)(bf)
-  }
-
-  def |+#[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That = {
-    itl.zipWithIndex(bf)
-  }
-}
-
 class QueryableSeq[+A](seq: collection.Seq[A]) {
 
   def applyOption(i: Int): Option[A] = try Some(seq(i)) catch {
@@ -53,5 +36,3 @@ class QueryableMap[A, B](map: collection.Map[A, B]) {
 
   def ??=(q: (A, B)) = map getOrElse(q._1, q._2)
 }
-
-

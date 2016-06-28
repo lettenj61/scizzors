@@ -11,6 +11,8 @@ import ammonite.ops.FileType
   */
 trait Attrs {
 
+  def location: Path
+
   def name: String
   def size: Long
 
@@ -54,9 +56,10 @@ object Attrs {
       ctime: FileTime,
       atime: FileTime,
       owner: UserPrincipal,
-      fileType: FileType) extends Attrs {
+      fileType: FileType,
+      location: Path) extends Attrs {
 
-    override def toString = s"$name,$size,$mtime,$owner,$fileType"
+    override def toString = s"$name, $size, $mtime, $owner, $fileType"
   }
 
   def default(path: ammonite.ops.Path) = {
@@ -101,7 +104,8 @@ object Attrs {
       else if (basic.isDirectory) FileType.Dir
       else if (basic.isSymbolicLink) FileType.SymLink
       else if (basic.isOther) FileType.Other
-      else ???
+      else ???,
+      path
     ) {
 
       def permissions = perms

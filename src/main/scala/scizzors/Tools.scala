@@ -1,24 +1,31 @@
 package scizzors
 
+import java.nio.file.Files
 import ammonite.ops._
 
-/** Some built-in tools to override Ammonite ops' ones.
-  *
-  * These are implemented to let Ammonite's cool functionality fit in
-  * Windows' poor command prompt.
+object stat extends (Path => Attrs) {
+  def apply(path: Path) = Attrs default path
+
+  def !(path: Path) = apply(path)
+}
+
+/** This `sgrep` is for "Silent Grep Function", which replaces original
+  * grep tool with no pretty printing output.
   */
-trait Tools {
+object sgrep {
 
-  object stat extends (Path => Attrs) {
-    def apply(path: Path) = Attrs default path
+}
 
-    def !(path: Path) = apply(path)
-  }
+/** Module to handle date & time operations from Ammonite.
+  */
+object datetime {
+  import java.time._
 
-  /** This `sgrep` is for "Silent Grep Function", which replaces original
-    * grep tool with no pretty printing output.
-    */
-  object sgrep {
+  def now = LocalDateTime.now
 
-  }
+  def yesterday = now minusDays 1
+
+  def tomorrow = now plusDays 1
+
+  def zone = ZoneId.systemDefault
 }
