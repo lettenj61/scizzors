@@ -3,6 +3,7 @@
 
 # personal notes
 _note/
+scripts/
 
 # sbt specific
 .cache
