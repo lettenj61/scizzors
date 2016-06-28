@@ -39,8 +39,8 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
   val write = ops.write
   val read = ops.read
 
-  val % = ops.Shellout.%
-  val %% = ops.Shellout.%%
+  def % = EagerCommand.buildInteractive
+  def %% = EagerCommand.buildStream
 
   /** Grants reference to the path where the application focus on.
     */
@@ -91,28 +91,25 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
 
   /** Rough helper to some platform-oriented operations.
     */
-  object windows extends WindowsHelper {
+  private[this] object EagerCommand extends WindowsHelper {
 
     lazy val os = sys.props("os.name")
-    private[this] lazy val reusableCommandI = new WindowsCommand(
-      Vector.empty, Map.empty, ops.Shellout.executeInteractive)
-
-    private[this] lazy val reusableCommandS = new WindowsCommand(
-      Vector.empty, Map.empty, ops.Shellout.executeStream)
 
     /** Spawns subprocesses which defined as subcommand of Windows' `cmd.exe`,
      *  by passing arguments implicitly prefixed with "cmd /c".
      */
-    def %# = {
-      if (os.toLowerCase contains "windows") reusableCommandI
-      else unsupportedPlatform("%# syntax")
+    val buildInteractive = {
+      if (os.toLowerCase contains "windows") new WindowsCommand(
+        Vector.empty, Map.empty, ops.Shellout.executeInteractive)
+      else ops.Shellout.%
     }
 
-    /** Similar to `%#` operator, but receives result of sub process as `CommandResult`s.
+    /** Similar to above but receives result of sub process as `CommandResult`s.
       */
-    def %%# = {
-      if (os.toLowerCase contains "windows") reusableCommandS
-      else unsupportedPlatform("%%# syntax")
+    val buildStream = {
+      if (os.toLowerCase contains "windows") new WindowsCommand(
+        Vector.empty, Map.empty, ops.Shellout.executeStream)
+      else ops.Shellout.%%
     }
 
     private def unsupportedPlatform(operation: String) = {
