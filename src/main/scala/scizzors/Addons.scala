@@ -34,7 +34,7 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
   val mv = ops.mv
   val cp = ops.cp
   val rm = ops.rm
-  val exsists = ops.exists
+  val exists = ops.exists
 
   val write = ops.write
   val read = ops.read
