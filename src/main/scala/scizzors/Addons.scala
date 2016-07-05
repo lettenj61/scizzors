@@ -12,6 +12,9 @@ import upickle.default
   */
 trait Addons extends ops.Extensions with ops.RelPathStuff {
 
+  type Path = ammonite.ops.Path
+  type RelPath = ammonite.ops.RelPath
+
   /** Proxy for same functions located in Ammonite ops package object.
     */
   val root = ops.root
@@ -21,7 +24,6 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
   }
 
   // Delegations.
-
   lazy val home = ops.home
 
   lazy val tmp = ops.tmp
@@ -38,6 +40,15 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
 
   val write = ops.write
   val read = ops.read
+
+  implicit class DirectWriting(val target: Path) {
+    def |>:(data: ammonite.ops.Internals.Writable): Unit = write(target, data)
+    def |>>:(data: ammonite.ops.Internals.Writable): Unit = write.append(target, data)
+  }
+
+  object absent extends ops.ImplicitOp[Boolean] {
+    def apply(arg: Path) = !exists(arg)
+  }
 
   def % = EagerCommand.buildInteractive
   def %% = EagerCommand.buildStream
@@ -84,6 +95,12 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
     def apply(executable: Path) = ops.%(executable.toString)
     def !(executable: Path) = apply(executable)
   }
+
+  /** Typesafe Config Reader borrowed from Skinny Framework
+    *
+    * https://github.com/skinny-framework/skinny-framework/blob/master/common/src/main/scala/skinny/util/TypesafeConfigReader.scala
+    */
+  object HOCON extends ConfigReader
 
   /** Functionality to handle scalaj.Http things.
     */
@@ -138,12 +155,12 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
   object unpickle {
     def apply[T : default.Reader](expr: String) = default.read(expr)
 
-    def asJs(arg: Path) = upickle.json.read(ops.read(arg))
+    def asJs(expr: String) = upickle.json.read(expr)
 
     object file {
       def apply[T : default.Reader](arg: Path) = default.read(ops.read(arg))
 
-      def asJs(arg: Path) = upickle.json.read(ops.read(arg)).asInstanceOf[upickle.Js.Obj]
+      def asJs(arg: Path) = upickle.json.read(ops.read(arg))
     }
   }
 }

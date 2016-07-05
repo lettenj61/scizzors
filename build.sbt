@@ -3,6 +3,7 @@ version := "NA"
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
+  "com.typesafe" % "config"         % "1.3.0",
   "org.scalaj"  %% "scalaj-http"    % "2.3.0",
   "com.github.scopt" %% "scopt"     % "3.4.0",
   "com.lihaoyi" %% "upickle"        % "0.4.1",
