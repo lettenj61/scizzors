@@ -46,6 +46,8 @@ trait Addons extends ops.Extensions with ops.RelPathStuff {
     def |>>:(data: ammonite.ops.Internals.Writable): Unit = write.append(target, data)
   }
 
+  /** Opposite to `exists`, tests given `Path` is not existing.
+    */
   object absent extends ops.ImplicitOp[Boolean] {
     def apply(arg: Path) = !exists(arg)
   }
